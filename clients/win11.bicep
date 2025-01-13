@@ -14,6 +14,7 @@ module vmClient 'br/public:avm/res/compute/virtual-machine:0.11.0' = {
   params: {
     name: vmName
     location: location
+    tags: tags
     vmSize: 'Standard_D4s_v3'
     imageReference: {
       publisher: 'MicrosoftWindowsDesktop'
@@ -47,36 +48,15 @@ module vmClient 'br/public:avm/res/compute/virtual-machine:0.11.0' = {
         enableAcceleratedNetworking: false // not compatible with the SKU
         enableIPForwarding: false
         enableIPConfiguration: true
-        enablePublicIPAddress: true
+        enablePublicIPAddress: false
         ipConfigurations: [
           {
             name: '${vmName}-ipconfig-v4'
-            publicIPAddressVersion: 'IPv4'
             privateIPAddressVersion: 'IPv4'
             subnetResourceId: subnetResourceId
-            pipConfiguration: {
-              publicIPAddressResourceId: vm_client_pip_v4.outputs.resourceId
-            }
           }
         ]
       }
     ]
-  }
-}
-
-module vm_client_pip_v4 'br/public:avm/res/network/public-ip-address:0.7.1' = {
-  name: '${vmName}-pip-v4'
-  params: {
-    name: '${vmName}-pip-v4'
-    dnsSettings: {
-      domainNameLabel: '${namePrefix}w11'
-      domainNameLabelScope: 'ResourceGroupReuse'
-      fqdn: '${namePrefix}w11.${location}.cloudapp.azure.com'
-    }
-    location: location
-    publicIPAddressVersion: 'IPv4'
-    publicIPAllocationMethod: 'Static'
-    idleTimeoutInMinutes: 4
-    tags: tags
   }
 }

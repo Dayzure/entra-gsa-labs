@@ -63,16 +63,12 @@ module vm 'br/public:avm/res/compute/virtual-machine:0.11.0' = {
         enableAcceleratedNetworking: false // not compatible with the SKU
         enableIPForwarding: false
         enableIPConfiguration: true
-        enablePublicIPAddress: true
+        enablePublicIPAddress: false
         ipConfigurations: [
           {
             name: '${vmName}-ipconfig-v4'
-            publicIPAddressVersion: 'IPv4'
             privateIPAddressVersion: 'IPv4'
             subnetResourceId: subnetResourceId
-            pipConfiguration: {
-              publicIPAddressResourceId: vm_pip_v4.outputs.resourceId
-            }
           }
         ]
       }
@@ -80,7 +76,7 @@ module vm 'br/public:avm/res/compute/virtual-machine:0.11.0' = {
     extensionDSCConfig: {
       enabled: true
       settings: {
-        ModulesUrl: 'https://github.com/Azure/azure-quickstart-templates/raw/refs/heads/master/application-workloads/active-directory/active-directory-new-domain/DSC/CreateADPDC.zip'
+        ModulesUrl: 'https://github.com/Dayzure/entra-gsa-labs/raw/refs/heads/main/dsc/CreateADPDC.zip'
         ConfigurationFunction: 'CreateADPDC.ps1\\CreateADPDC'
         Properties: {
           DomainName: adDomainName
@@ -96,23 +92,6 @@ module vm 'br/public:avm/res/compute/virtual-machine:0.11.0' = {
         }
       }
     }
-    tags: tags
-  }
-}
-
-module vm_pip_v4 'br/public:avm/res/network/public-ip-address:0.7.1' = {
-  name: '${vmName}-pip-v4'
-  params: {
-    name: '${vmName}-pip-v4'
-    dnsSettings: {
-      domainNameLabel: '${namePrefix}adds'
-      domainNameLabelScope: 'ResourceGroupReuse'
-      fqdn: '${namePrefix}adds.${location}.cloudapp.azure.com'
-    }
-    location: location
-    publicIPAddressVersion: 'IPv4'
-    publicIPAllocationMethod: 'Static'
-    idleTimeoutInMinutes: 4
     tags: tags
   }
 }

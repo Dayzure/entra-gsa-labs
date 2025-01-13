@@ -7,5 +7,6 @@ param tags = {
 param resourceLocation = 'westeurope'
 param resourceGroupName = 'gsa-lab-rg'
 param adminUsername = 'gsadm' 
-param adminPassword = '!SuperSecureGenerated!'
+@description('Use a complex password that will meet Azure VM password complexity requriements.')
+param adminPassword = '******'
 param adDomainName = 'M365x82796325.onmicrosoft.com'

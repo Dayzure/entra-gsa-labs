@@ -45,10 +45,10 @@ module smbVm 'br/public:avm/res/compute/virtual-machine:0.11.0' = {
         name: '${vmName}-nic'
         privateIPAddressVersion: 'IPv4'
         deleteOption: 'Delete'
-        enableAcceleratedNetworking: false // not compatible with the SKU
+        enableAcceleratedNetworking: false 
         enableIPForwarding: false
         enableIPConfiguration: true
-        enablePublicIPAddress: true
+        enablePublicIPAddress: false
         ipConfigurations: [
           {
             name: '${vmName}-ipconfig-v4'
