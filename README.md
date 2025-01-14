@@ -43,15 +43,34 @@ The easiest way to achieve that is following these steps:
 * Open you favorite browser window, navigate to (https://portal.azure.com) and sign-in with your Azure account where you want to create the lab environment
 * Open the cloud shell from top right button. For more information Azure Cloud Shell follow [this link](https://learn.microsoft.com/en-us/azure/cloud-shell/overview). Please choose `Azure Bash` mode
 * clone this repository by executing the following command in the cloud shell:
- `git clone https://github.com/Dayzure/entra-gsa-labs.git`
+   ```
+   git clone https://github.com/Dayzure/entra-gsa-labs.git
+   ```
 * once the repository is cloned you can change to its locally create folder:
- `cd entra-gsa-labs`
+   ```
+   cd entra-gsa-labs
+   ```
 * The only thing left is to update the password in the parameters file. You can do this using the built-in code editor. To start the local editor type the following command in the Azure Cloud Shell:
-`code lab.bicepparam`
- In order to save your changes you can use the editor commands. Follow the reference [here](https://learn.microsoft.com/en-us/azure/cloud-shell/using-cloud-shell-editor)
+  ```
+  code lab.bicepparam
+  ```
+  To save your changes you can use the editor commands. Follow the reference [here](https://learn.microsoft.com/en-us/azure/cloud-shell/using-cloud-shell-editor)
 * In your last step you will deploy the entire infrastructure in one single go by executing the following command from the cloud shell:
-`az deployment sub create -n 'gsaLabvnet' -l 'westeurope' --template-file 'main.bicep' --parameters 'lab.bicepparam'`
-* Once your deployment if finished you can connect to any of the VMs using Azure Bastion. 
+  * before running the deployment make sure you are targeting the subscritpion you want to deploy to. Check the current context using the command
+  ```
+  az account show
+  ```
+  * should you have access to multiple subscriptions and the above command shows you different subscription, change the context using the command:
+  ```
+  az account set --subscription "<GUID or Name of the Azure subscription>"
+  ```
+  * Finally run the deployment command
+  ```
+   az deployment sub create -n 'gsaLabvnet' -l 'westeurope' --template-file 'main.bicep' --parameters 'lab.bicepparam'
+  ```
+
+Now sit back and relax untill deplyoment completes.
+Once your deployment if finished you can connect to any of the VMs using Azure Bastion. 
 
 After you perform the steps above your deployment is ready and you can continue to fine tune.
 
