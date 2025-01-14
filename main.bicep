@@ -6,6 +6,10 @@ param tags object
 @description('The CDX Tenant Domain - this will match the AD DS Domain name')
 param adDomainName string
 
+
+@description('The domain name for the ADDS domain (the M365xYYYY portion of the CDX Tenant Domain')
+param adDomain string
+
 @description('Admin user name')
 param adminUsername string
 
@@ -75,6 +79,7 @@ module vmSmbShareServer 'servers/smbShareServer.bicep' = {
   params: {
     adminUsername: adminUsername
     adDomainName: adDomainName
+    adDomain: adDomain
     //YsubnetResourceId: '/subscriptions/08edba72-f736-4467-9d35-7032f38ebce6/resourceGroups/gsaLabs/providers/Microsoft.Network/virtualNetworks/gsaLabs-vnetServers/subnets/server-vms'
     subnetResourceId: networking.outputs.serversSubnetResourceId
     adminPassword: adminPassword
@@ -95,4 +100,19 @@ module vmClient 'clients/win11.bicep' = {
     tags: tags
     location: resourceLocation
   }
+}
+
+module vmHybridClient 'clients/win11hybrid.bicep' = {
+  name: 'Win11HybridClientVM'
+  scope: resourceGroup(resourceGroupName)
+  params: {
+    adminUsername: adminUsername
+    adminPassword: adminPassword
+    subnetResourceId: networking.outputs.subnetHybridClientsResourceId
+    tags: tags
+    location: resourceLocation
+  }
+  dependsOn:[
+    updateDNS
+  ]
 }

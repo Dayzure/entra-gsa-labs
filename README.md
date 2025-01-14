@@ -53,7 +53,7 @@ After you perform the steps above your deployment is ready and you can continue 
 
 # TODOs
 - [X] Remove the public IPs and validate deplyoment
-- [X] OPtimize NSGs - actually removed all NSGs as we do not need them. All comms are within the same virtual network
+- [X] Optimize NSGs - actually removed all NSGs as we do not need them. All comms are within the same virtual network
 - [ ] Try to run the group and user creation and folder share [script](./PoSH/CreateFileShare.ps1) as part of the deployment. For now user must manually execute it on the smb VM after deployment is ready.
 - [ ] Add another client that will be Hybrid Joined 
  - https://github.com/Dayzure/iga-demos/issues/1

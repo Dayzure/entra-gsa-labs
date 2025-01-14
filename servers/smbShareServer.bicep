@@ -119,9 +119,9 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
       fileUris: [
         'https://raw.githubusercontent.com/Dayzure/entra-gsa-labs/refs/heads/main/PoSH/CreateFileShare.ps1'
       ]
-      commandToExecute: 'powershell.exe -ExecutionPolicy Unrestricted -File .\\CreateFileShare.ps1 -DomainUsername "${adDomainName}\\${adminUsername}" -DomainPassword "${adminPassword}"'
     }
     protectedSettings: {
+      commandToExecute: 'powershell.exe -ExecutionPolicy Unrestricted -File CreateFileShare.ps1 -DomainUsername "${adDomainName}\\${adminUsername}" -DomainPassword "${adminPassword}"'
       adminUsername: '${adDomainName}\\${adminUsername}'
       adminPassword: adminPassword
     }

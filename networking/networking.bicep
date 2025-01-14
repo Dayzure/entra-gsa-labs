@@ -9,12 +9,14 @@ param tags object = {}
 @description('The address prefixes for the virtual network. Add an IPV4 prefix.')
 param addressPrefixServers array = ['10.100.0.0/24']
 param addressPrefixClients array = ['10.200.0.0/24']
+param addressPrefixHybridClients array = ['10.150.0.0/24']
 
 var bastionSubnetAddressPrefixServers = cidrSubnet(addressPrefixServers[0], 26, 0) // the first /26 subnet in the address space
 var addsSubnetAddressPrefixV4 = cidrSubnet(addressPrefixServers[0], 26, 1) // the second /26 subnet in the address space
 var serversSubnetAddressPrefixV4 = cidrSubnet(addressPrefixServers[0], 26, 2) // the third /26 subnet in the address space
 var bastionSubnetAddressPrefixClients = cidrSubnet(addressPrefixClients[0], 26, 0) // the first /26 subnet in the address space
 var clientsSubnetAddressPrefixV4 = cidrSubnet(addressPrefixClients[0], 26, 1) // the second /26 subnet in the address space
+var hybridClientSubnetPrefix = cidrSubnet(addressPrefixHybridClients[0], 25, 0)
 
 module vnetServers 'br/public:avm/res/network/virtual-network:0.5.2' = {
   name: '${namePrefix}-vnetServers'
@@ -60,84 +62,63 @@ module vnetClients 'br/public:avm/res/network/virtual-network:0.5.2' = {
   }
 }
 
-resource azureBastionServers 'Microsoft.Network/bastionHosts@2024-01-01' = {
-  name: '${namePrefix}-BastionServers'
-  location: location // pay attention to product availability: https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/table !!
-  tags: tags
-  sku: {
-    name: 'Basic'
-  }
-  properties: {
-    virtualNetwork: {
-      id: vnetServers.outputs.resourceId
-    }
-    ipConfigurations: [
-      {
-        name: 'IpConf'
-        properties: {
-          subnet: {
-            id: vnetServers.outputs.subnetResourceIds[0]
-          }
-          publicIPAddress: {
-            id: bastionServers_publicIP.id
-          }
-        }
-      }
+module vnetHybridClients 'br/public:avm/res/network/virtual-network:0.5.2' = {
+  name: '${namePrefix}-vnetHybridClients'
+  params: {
+    name: '${namePrefix}-vnetHybridClients'
+    location: location
+    tags: tags
+    addressPrefixes: addressPrefixHybridClients
+    dnsServers: [
+      '10.100.0.68'
     ]
-  }
-}
-
-resource bastionServers_publicIP 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
-  name: '${namePrefix}-BastionServers-PublicIP'
-  location: location
-  tags: tags
-  sku: {
-    name: 'Standard'
-    tier: 'Regional'
-  }
-  properties: {
-    publicIPAllocationMethod: 'Static'
-  }
-}
-
-resource azureBastionClients 'Microsoft.Network/bastionHosts@2024-01-01' = {
-  name: '${namePrefix}-BastionClients'
-  location: location // pay attention to product location availability: https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/table
-  tags: tags
-  sku: {
-    name: 'Basic'
-  }
-  properties: {
-    virtualNetwork: {
-      id: vnetClients.outputs.resourceId
-    }
-    ipConfigurations: [
+    subnets: [
       {
-        name: 'IpConf'
-        properties: {
-          subnet: {
-            id: vnetClients.outputs.subnetResourceIds[0]
-          }
-          publicIPAddress: {
-            id: bastionClients_publicIP.id
-          }
-        }
+        name: 'hybrid-client-vms'
+        addressPrefixes: [hybridClientSubnetPrefix]
       }
-    ]
+    ] 
   }
 }
 
-resource bastionClients_publicIP 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
-  name: '${namePrefix}-BastionClients-PublicIP'
-  location: location
-  tags: tags
-  sku: {
-    name: 'Standard'
-    tier: 'Regional'
+module vnetPeeringHybridClientsToServers 'vnetPeering.bicep' = {
+  name: 'vnetPeeringHybridClientsToServers'
+  params: {
+    vnet1Name: vnetHybridClients.name
+    vnet1Id: vnetHybridClients.outputs.resourceId
+    vnet2Name: vnetServers.name
+    vnet2Id: vnetServers.outputs.resourceId
   }
-  properties: {
-    publicIPAllocationMethod: 'Static'
+ }
+
+module vnetPeeringServersToHybridClients 'vnetPeering.bicep' = {
+  name: 'vnetPeeringServersToHybridClients'
+  params: {
+    vnet1Name: vnetServers.name
+    vnet1Id: vnetServers.outputs.resourceId
+    vnet2Name: vnetHybridClients.name
+    vnet2Id: vnetHybridClients.outputs.resourceId
   }
+  dependsOn: [
+    vnetPeeringHybridClientsToServers
+  ]
+}
+
+module bastionHosts 'bastionHosts.bicep' = {
+  name: 'bastionHosts'
+  params: {
+    location: location
+    tags: tags
+    namePrefix: namePrefix
+    vnetServersResourceId: vnetServers.outputs.resourceId
+    vnetServersBastionSubnetResourceId: vnetServers.outputs.subnetResourceIds[0]
+    vnetClientsResourceId: vnetClients.outputs.resourceId
+    vnetClientsBastionSubnetResourceId: vnetClients.outputs.subnetResourceIds[0]
+  }
+  dependsOn: [
+    vnetPeeringHybridClientsToServers
+    vnetPeeringServersToHybridClients
+  ]
 }
 
 @description('The resource ID of the adds subnet.')
@@ -154,3 +135,9 @@ output vnetClientsResourceId string = vnetClients.outputs.resourceId
 
 @description('The resource ID of the virtual network for clients.')
 output subnetClientsResourceId string = vnetClients.outputs.subnetResourceIds[1]
+
+@description('The resource ID of the virtual network for hybrid clients.')
+output vnetHybridClientsResourceId string = vnetHybridClients.outputs.resourceId
+
+@description('The resource ID of the virtual network subnet for hybrid clients.')
+output subnetHybridClientsResourceId string = vnetHybridClients.outputs.subnetResourceIds[0]
