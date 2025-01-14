@@ -146,14 +146,6 @@ configuration CreateADPDC
             DependsOn = '[xADDomain]FirstDS'
         }
 
-        xGPRegistryValueList AllowDefaultCredentials {
-            Name = 'Add Remote Desktop Users to Logon Policy'
-            Key = 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services'
-            Value = "Remote Desktop Users"
-            ValueName = 'SeRemoteInteractiveLogonRight'
-            Type = 'MultiString'
-        }
-
         xGPLink LinkRemoteDesktopUsersGPO
         {
             Ensure = 'Present'
@@ -163,6 +155,32 @@ configuration CreateADPDC
             Enforced = 'Yes'
             DependsOn = '[xGPO]AddRemoteDesktopUsersToLogonPolicy'
         }
+
+        Script AddRemoteDesktopUsersToLogonPolicy
+        {
+            SetScript = {
+                $ErrorActionPreference = 'Stop'
+                $domainName = $using:DomainName
+                $gpoName = 'Add Remote Desktop Users to Logon Policy'
+                $gpo = Get-GPO -Name $gpoName -ErrorAction SilentlyContinue
+                if (-not $gpo) {
+                    $gpo = New-GPO -Name $gpoName
+                }
+                $gpo | Set-GPRegistryValue -Key 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services' -ValueName 'SeRemoteInteractiveLogonRight' -Type MultiString -Value 'Remote Desktop Users'
+                $gpo | New-GPLink -Target "dc=$($domainName.Replace('.', ',dc='))" -LinkEnabled Yes -Enforced Yes
+                Invoke-GPUpdate -Computer "*" -RandomDelayInMinutes 0
+            }
+            GetScript = { @{} }
+            TestScript = {
+                $gpo = Get-GPO -Name 'Add Remote Desktop Users to Logon Policy' -ErrorAction SilentlyContinue
+                if ($gpo) {
+                    $settings = Get-GPRegistryValue -Name 'Add Remote Desktop Users to Logon Policy' -Key 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services' -ValueName 'SeRemoteInteractiveLogonRight'
+                    return $settings -contains 'Remote Desktop Users'
+                }
+                return $false
+            }
+            DependsOn = "[xGPO]AddRemoteDesktopUsersToLogonPolicy"
+        }        
 
         Script UpdateGroupPolicy
         {
