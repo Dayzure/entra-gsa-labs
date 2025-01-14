@@ -1,6 +1,5 @@
 param location string = resourceGroup().location
 param adDomainName string
-param adDomain string
 param subnetResourceId string
 param tags object
 param adminUsername string

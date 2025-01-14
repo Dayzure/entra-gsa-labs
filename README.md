@@ -15,7 +15,12 @@ This pattern deploys the following infrastructure components:
 * A Virtual Network for client VM which includes
   * IP address space `10.200.0.0/24`
   * Azure Bastion to connect to the client VM (subnet `10.200.0.0/26`). Because we want to test Entra Private access, we must avoid connecting the client VM directly to the Server VMs via Azure Virtual Network Peering. That is why we need a separate Azure Bastion deployment for this isolated network.
-  * A subnet ()`10.100.0.64/26`) with single Windows 11 VM
+  * A subnet (`10.100.0.64/26`) with single Windows 11 VM
+* A virtual Network for hybrid client tests which includes
+ * IP Address space `10.150.0.0/24`
+ * A DNS set to the AD DS to facilitate Enterprise Join
+ * A subnet `10.150.0.0/25` and one W11 client deployed there
+ * A VNet peering from hybrid client VNet to Servers VNet to enable the use of Azure Bastion from Servers VNet to connect to the hybrid client and to enable domain join.
 
 When done, you must see the following components in your resource group:
 ![GSA Labs drawing](./media/gsa-lab-resources.png "GSA Labs drawing")
@@ -54,7 +59,7 @@ After you perform the steps above your deployment is ready and you can continue 
 # TODOs
 - [X] Remove the public IPs and validate deplyoment
 - [X] Optimize NSGs - actually removed all NSGs as we do not need them. All comms are within the same virtual network
-- [ ] Try to run the group and user creation and folder share [script](./PoSH/CreateFileShare.ps1) as part of the deployment. For now user must manually execute it on the smb VM after deployment is ready.
-- [ ] Add another client that will be Hybrid Joined 
+- [X] Try to run the group and user creation and folder share [script](./PoSH/CreateFileShare.ps1) as part of the deployment. For now user must manually execute it on the smb VM after deployment is ready.
+- [X] Add another client that will be Hybrid Joined 
  - https://github.com/Dayzure/iga-demos/issues/1
  - [ ] work out automation to simulate the client being in "local" network and sometimes being "on internet"
