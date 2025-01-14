@@ -14,7 +14,7 @@ configuration CreateADPDC
     
     Import-DscResource -ModuleName xActiveDirectory, xStorage, xNetworking, PSDesiredStateConfiguration, xPendingReboot, xGroupPolicy
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
-    [System.Management.Automation.PSCredential ]$UserCreds = New-Object System.Management.Automation.PSCredential ("gsauser", $Admincreds.Password)
+    [System.Management.Automation.PSCredential ]$UserCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\gsauser", $Admincreds.Password)
     $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
     $InterfaceAlias = $($Interface.Name)
 
@@ -108,7 +108,7 @@ configuration CreateADPDC
 
         xADUser GSAUser {
             DomainName = $DomainName
-            UserName = "gsauser"
+            UserName = "${DomainName}\gsauser"
             Ensure = "Present"
             Password = $UserCreds
             DomainAdministratorCredential = $DomainCreds
@@ -119,15 +119,14 @@ configuration CreateADPDC
             GroupScope = "Universal"
             Category = "Security"
             Ensure = "Present"
-            MembershipAttribute = "SamAccountName"
-            MembersToInclude = @("gsauser")
+            MembersToInclude = @("${DomainName}\gsauser")
             DependsOn = "[xADDomain]FirstDS"
         }
 
         xADGroup RemoteDesktopUsers {
             GroupName = "Remote Desktop Users"
             Ensure = "Present"
-            MembersToInclude = @("gsauser")
+            MembersToInclude = @("${DomainName}\gsauser")
             Credential = $DomainCreds
             DependsOn = "[xADDomain]FirstDS"
         }
