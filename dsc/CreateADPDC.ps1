@@ -138,22 +138,6 @@ configuration CreateADPDC
         }
 
         # Create the GPO
-        GroupPolicy GPO
-        {
-            Name = "RemoteDesktopPolicy"
-            Ensure = "Present"
-            Description = "Policy to allow log on through Remote Desktop Services"
-        }
-
-        # Set the SeRemoteInteractiveLogonRight policy
-        GroupPolicyUserRightsAssignment SeRemoteInteractiveLogonRight
-        {
-            Policy = "SeRemoteInteractiveLogonRight"
-            Identity = @("$DomainName\Administrators", "$DomainName\Remote Desktop Users")
-            Ensure = "Present"
-            GpoName = "RemoteDesktopPolicy"
-        }
-
         xGPO AddRemoteDesktopUsersToLogonPolicy
         {
             Ensure = 'Present'
@@ -162,12 +146,22 @@ configuration CreateADPDC
             DependsOn = '[xADDomain]FirstDS'
         }
 
+        xGPRegistryValueList AllowDefaultCredentials {
+            Name = 'Add Remote Desktop Users to Logon Policy'
+            Key = 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services'
+            Value = "Remote Desktop Users"
+            ValueName = 'SeRemoteInteractiveLogonRight'
+            Type = 'MultiString'
+            Additive = $true
+        }
+
         xGPLink LinkRemoteDesktopUsersGPO
         {
             Ensure = 'Present'
             Name = 'Add Remote Desktop Users to Logon Policy'
             Target = "dc=$($DomainName.Replace('.', ',dc='))"
             LinkEnabled = 'Yes'
+            Enforced = 'Yes'
             DependsOn = '[xGPO]AddRemoteDesktopUsersToLogonPolicy'
         }
 
