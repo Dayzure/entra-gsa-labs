@@ -10,20 +10,18 @@ $Credential = New-Object System.Management.Automation.PSCredential ($DomainUsern
 # Function to run a command with the specified credentials
 function Invoke-CommandAsUser {
     param(
-        [string]$Command
+        [string]$Command,
+        [System.Management.Automation.PSCredential]$Credential
     )
     
     $encodedCommand = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($Command))
     
-    $process = Start-Process -FilePath "powershell.exe" -ArgumentList "-EncodedCommand $encodedCommand" -Credential $Credential -PassThru -Wait -NoNewWindow
+    Invoke-Command -EncodedCommand $encodedCommand -ComputerName localhost -Credential $Credential -PassThru -Wait -NoNewWindow
     
-    if ($process.ExitCode -ne 0) {
-        Write-Error "Command failed with exit code $($process.ExitCode)"
-    }
 }
 
 # Example: Run a command that requires domain admin privileges
-Invoke-CommandAsUser -Command {
+Invoke-CommandAsUser -Credential $Credential -Command {
     # Define variables
     $groupName = "GSALabsGroup"
     $folderPath = "C:\gsa-labs-share"
