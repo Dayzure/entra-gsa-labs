@@ -112,6 +112,10 @@ configuration CreateADPDC
             Ensure = "Present"
             Password = $UserCreds
             DomainAdministratorCredential = $DomainCreds
+            GivenName = "Gsa"
+            Surname = "User"
+            UserPrincipalName = "gsauser@${DomainName}"
+            EmailAddress = "gsauser@${DomainName}"            
         }
 
         xADGroup GSAUsersPrivateAccess {
@@ -125,6 +129,8 @@ configuration CreateADPDC
 
         xADGroup RemoteDesktopUsers {
             GroupName = "Remote Desktop Users"
+            GroupScope = "Global"
+            Category = "Security"
             Ensure = "Present"
             MembersToInclude = @("gsauser")
             Credential = $DomainCreds
