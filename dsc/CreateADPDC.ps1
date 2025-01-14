@@ -12,7 +12,7 @@ configuration CreateADPDC
         [Int]$RetryIntervalSec = 30
     ) 
     
-    Import-DscResource -ModuleName xActiveDirectory, xStorage, xNetworking, PSDesiredStateConfiguration, xPendingReboot, xGroupPolicy, GroupPolicyDsc
+    Import-DscResource -ModuleName xActiveDirectory, xStorage, xNetworking, PSDesiredStateConfiguration, xPendingReboot, xGroupPolicy, GroupPolicyDsc, SecurityPolicyDsc
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
     [System.Management.Automation.PSCredential ]$UserCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\gsauser", $Admincreds.Password)
     $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
@@ -156,31 +156,13 @@ configuration CreateADPDC
             DependsOn = '[xGPO]AddRemoteDesktopUsersToLogonPolicy'
         }
 
-        Script AddRemoteDesktopUsersToLogonPolicy
+        UserRightsAssignment AllowLogOnThroughRemoteDesktopServices
         {
-            SetScript = {
-                $ErrorActionPreference = 'Stop'
-                $domainName = $using:DomainName
-                $gpoName = 'Add Remote Desktop Users to Logon Policy'
-                $gpo = Get-GPO -Name $gpoName -ErrorAction SilentlyContinue
-                if (-not $gpo) {
-                    $gpo = New-GPO -Name $gpoName
-                }
-                $gpo | Set-GPRegistryValue -Key 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services' -ValueName 'SeRemoteInteractiveLogonRight' -Type MultiString -Value 'Remote Desktop Users'
-                $gpo | New-GPLink -Target "dc=$($domainName.Replace('.', ',dc='))" -LinkEnabled Yes -Enforced Yes
-                Invoke-GPUpdate -Computer "*" -RandomDelayInMinutes 0
-            }
-            GetScript = { @{} }
-            TestScript = {
-                $gpo = Get-GPO -Name 'Add Remote Desktop Users to Logon Policy' -ErrorAction SilentlyContinue
-                if ($gpo) {
-                    $settings = Get-GPRegistryValue -Name 'Add Remote Desktop Users to Logon Policy' -Key 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services' -ValueName 'SeRemoteInteractiveLogonRight'
-                    return $settings -contains 'Remote Desktop Users'
-                }
-                return $false
-            }
-            DependsOn = "[xGPO]AddRemoteDesktopUsersToLogonPolicy"
-        }        
+            Policy = 'SeRemoteInteractiveLogonRight'
+            Identity = 'Remote Desktop Users'
+            Ensure = 'Present'
+            DependsOn = "[xADDomain]FirstDS"
+        }
 
         Script UpdateGroupPolicy
         {
