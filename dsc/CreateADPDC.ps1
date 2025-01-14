@@ -12,7 +12,7 @@ configuration CreateADPDC
         [Int]$RetryIntervalSec = 30
     ) 
     
-    Import-DscResource -ModuleName xActiveDirectory, xStorage, xNetworking, PSDesiredStateConfiguration, xPendingReboot, xGroupPolicy
+    Import-DscResource -ModuleName xActiveDirectory, xStorage, xNetworking, PSDesiredStateConfiguration, xPendingReboot, xGroupPolicy, GroupPolicyDsc
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
     [System.Management.Automation.PSCredential ]$UserCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\gsauser", $Admincreds.Password)
     $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
@@ -137,22 +137,29 @@ configuration CreateADPDC
             DependsOn = "[xADDomain]FirstDS"
         }
 
+        # Create the GPO
+        GroupPolicy GPO
+        {
+            Name = "RemoteDesktopPolicy"
+            Ensure = "Present"
+            Description = "Policy to allow log on through Remote Desktop Services"
+        }
+
+        # Set the SeRemoteInteractiveLogonRight policy
+        GroupPolicyUserRightsAssignment SeRemoteInteractiveLogonRight
+        {
+            Policy = "SeRemoteInteractiveLogonRight"
+            Identity = @("$DomainName\Administrators", "$DomainName\Remote Desktop Users")
+            Ensure = "Present"
+            GpoName = "RemoteDesktopPolicy"
+        }
+
         xGPO AddRemoteDesktopUsersToLogonPolicy
         {
             Ensure = 'Present'
             Name = 'Add Remote Desktop Users to Logon Policy'
             Domain = $DomainName
             DependsOn = '[xADDomain]FirstDS'
-        }
-
-        xGPO AddRemoteDesktopUsersToLogon
-        {
-            Name = 'Add Remote Desktop Users to Logon Policy'
-            Key = 'Computer Configuration\Policies\Windows Settings\Security Settings\Local Policies\User Rights Assignment'
-            ValueName = 'SeRemoteInteractiveLogonRight'
-            Value = "Remote Desktop Users"
-            Ensure = 'Present'
-            DependsOn = '[xGPO]AddRemoteDesktopUsersToLogonPolicy'
         }
 
         xGPLink LinkRemoteDesktopUsersGPO
