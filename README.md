@@ -17,10 +17,10 @@ This pattern deploys the following infrastructure components:
   * Azure Bastion to connect to the client VM (subnet `10.200.0.0/26`). Because we want to test Entra Private access, we must avoid connecting the client VM directly to the Server VMs via Azure Virtual Network Peering. That is why we need a separate Azure Bastion deployment for this isolated network.
   * A subnet (`10.100.0.64/26`) with single Windows 11 VM
 * A virtual Network for hybrid client tests which includes
- * IP Address space `10.150.0.0/24`
- * A DNS set to the AD DS to facilitate Enterprise Join
- * A subnet `10.150.0.0/25` and one W11 client deployed there
- * A VNet peering from hybrid client VNet to Servers VNet to enable the use of Azure Bastion from Servers VNet to connect to the hybrid client and to enable domain join.
+  * IP Address space `10.150.0.0/24`
+  * A DNS set to the AD DS to facilitate Enterprise Join
+  * A subnet `10.150.0.0/25` and one W11 client deployed there
+  * A VNet peering from hybrid client VNet to Servers VNet to enable the use of Azure Bastion from Servers VNet to connect to the hybrid client and to enable domain join.
 
 When done, you must see the following components in your resource group:
 ![GSA Labs drawing](./media/gsa-lab-resources.png "GSA Labs drawing")
@@ -55,7 +55,7 @@ The easiest way to achieve that is following these steps:
 
 After you perform the steps above your deployment is ready and you can continue to fine tune.
 
-> Note: Because the default configuration of Azure VMs is to only allow remote log on via Remote Desktop Services to the Administrators group, you will need to tweak the security policy. You must add the Remote Desktop Users security group to the local security policy - 
+> Note: Because the default configuration of Azure VMs is to only allow remote log on via Remote Desktop Services to the Administrators group, you will need to tweak the security policy. You must add the Remote Desktop Users security group to the local security policy. Untill we fix that with DSC.
 
 # TODOs
 - [X] Remove the public IPs and validate deplyoment
