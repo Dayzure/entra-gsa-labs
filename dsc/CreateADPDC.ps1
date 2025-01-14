@@ -12,7 +12,7 @@ configuration CreateADPDC
         [Int]$RetryIntervalSec = 30
     ) 
     
-    Import-DscResource -ModuleName xActiveDirectory, xStorage, xNetworking, PSDesiredStateConfiguration, xPendingReboot, xGroupPolicy, GroupPolicyDsc, SecurityPolicyDsc
+    Import-DscResource -ModuleName xActiveDirectory, xStorage, xNetworking, PSDesiredStateConfiguration, xPendingReboot, xGroupPolicy, SecurityPolicyDsc
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
     [System.Management.Automation.PSCredential ]$UserCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\gsauser", $Admincreds.Password)
     $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
@@ -159,7 +159,7 @@ configuration CreateADPDC
         UserRightsAssignment AllowLogOnThroughRemoteDesktopServices
         {
             Policy = 'Allow_log_on_through_Remote_Desktop_Services'
-            Identity = 'Remote Desktop Users'
+            Identity = 'Administrators', 'Remote Desktop Users'
             Ensure = 'Present'
             DependsOn = "[xADDomain]FirstDS"
         }
