@@ -145,7 +145,7 @@ configuration CreateADPDC
             DependsOn = '[xADDomain]FirstDS'
         }
 
-        xGroupPolicy AddRemoteDesktopUsersToLogon
+        xGPO AddRemoteDesktopUsersToLogon
         {
             Name = 'Add Remote Desktop Users to Logon Policy'
             Key = 'Computer Configuration\Policies\Windows Settings\Security Settings\Local Policies\User Rights Assignment'
