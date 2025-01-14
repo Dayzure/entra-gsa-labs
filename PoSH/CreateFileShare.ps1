@@ -7,7 +7,7 @@ param(
 $SecurePassword = ConvertTo-SecureString $DomainPassword -AsPlainText -Force
 $Credential = New-Object System.Management.Automation.PSCredential ($DomainUsername, $SecurePassword)
 # Define variables
-$groupName = "GSALabsGroup"
+$groupName = "GSAUsersPrivateAccess"
 $folderPath = "C:\gsa-labs-share"
 $shareName = "GSALabsShare"
 
