@@ -129,7 +129,7 @@ configuration CreateADPDC
 
         xADGroup RemoteDesktopUsers {
             GroupName = "Remote Desktop Users"
-            GroupScope = "Global"
+            GroupScope = "DomainLocal"
             Category = "Security"
             Ensure = "Present"
             MembersToInclude = @("gsauser")
