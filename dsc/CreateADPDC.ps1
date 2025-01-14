@@ -108,7 +108,7 @@ configuration CreateADPDC
 
         xADUser GSAUser {
             DomainName = $DomainName
-            UserName = "${DomainName}\gsauser"
+            UserName = "gsauser"
             Ensure = "Present"
             Password = $UserCreds
             DomainAdministratorCredential = $DomainCreds
@@ -119,14 +119,14 @@ configuration CreateADPDC
             GroupScope = "Universal"
             Category = "Security"
             Ensure = "Present"
-            MembersToInclude = @("${DomainName}\gsauser")
+            MembersToInclude = @("gsauser")
             DependsOn = "[xADDomain]FirstDS"
         }
 
         xADGroup RemoteDesktopUsers {
             GroupName = "Remote Desktop Users"
             Ensure = "Present"
-            MembersToInclude = @("${DomainName}\gsauser")
+            MembersToInclude = @("gsauser")
             Credential = $DomainCreds
             DependsOn = "[xADDomain]FirstDS"
         }
