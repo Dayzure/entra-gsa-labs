@@ -167,7 +167,7 @@ configuration CreateADPDC
         Script UpdateGroupPolicy
         {
             SetScript = {
-                Invoke-GPUpdate -Computer "*" -RandomDelayInMinutes 0
+                Invoke-GPUpdate -RandomDelayInMinutes 0
             }
             GetScript = { @{} }
             TestScript = { $false }
