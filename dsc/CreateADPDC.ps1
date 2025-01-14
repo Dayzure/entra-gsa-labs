@@ -137,55 +137,41 @@ configuration CreateADPDC
             DependsOn = "[xADDomain]FirstDS"
         }
 
-        xGPO EnableRemoteDesktop
+        xGPO AddRemoteDesktopUsersToLogonPolicy
         {
             Ensure = 'Present'
-            Name = 'Enable Remote Desktop'
-            Comment = 'Enables Remote Desktop connections'
+            Name = 'Add Remote Desktop Users to Logon Policy'
             Domain = $DomainName
             DependsOn = '[xADDomain]FirstDS'
         }
 
-        xGPRegistryValue EnableRemoteDesktopConnections
+        xGroupPolicy AddRemoteDesktopUsersToLogon
         {
-            Name = 'Enable Remote Desktop'
-            Key = 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services'
-            ValueName = 'fDenyTSConnections'
-            Value = 0
-            Type = 'DWord'
-            Domain = $DomainName
-            DependsOn = '[xGPO]EnableRemoteDesktop'
+            Name = 'Add Remote Desktop Users to Logon Policy'
+            Key = 'Computer Configuration\Policies\Windows Settings\Security Settings\Local Policies\User Rights Assignment'
+            ValueName = 'SeRemoteInteractiveLogonRight'
+            Value = "Remote Desktop Users"
+            Ensure = 'Present'
+            DependsOn = '[xGPO]AddRemoteDesktopUsersToLogonPolicy'
         }
 
-        xGPRegistryValue RemoteDesktopUserAuthentication
-        {
-            Name = 'Enable Remote Desktop'
-            Key = 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services'
-            ValueName = 'UserAuthentication'
-            Value = 0
-            Type = 'DWord'
-            Domain = $DomainName
-            DependsOn = '[xGPO]EnableRemoteDesktop'
-        }
-
-        xGPLink LinkRemoteDesktopGPO
+        xGPLink LinkRemoteDesktopUsersGPO
         {
             Ensure = 'Present'
-            Name = 'Enable Remote Desktop'
+            Name = 'Add Remote Desktop Users to Logon Policy'
             Target = "dc=$($DomainName.Replace('.', ',dc='))"
             LinkEnabled = 'Yes'
-            Domain = $DomainName
-            DependsOn = '[xGPO]EnableRemoteDesktop'
+            DependsOn = '[xGPO]AddRemoteDesktopUsersToLogonPolicy'
         }
 
         Script UpdateGroupPolicy
         {
             SetScript = {
-                gpupdate /force
+                Invoke-GPUpdate -Computer "*" -RandomDelayInMinutes 0
             }
             GetScript = { @{} }
             TestScript = { $false }
-            DependsOn = '[xGPLink]LinkRemoteDesktopGPO'
-        }        
+            DependsOn = '[xGPLink]LinkRemoteDesktopUsersGPO'
+        }   
     }
 } 
