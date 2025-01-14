@@ -132,7 +132,7 @@ configuration CreateADPDC
             GroupScope = "DomainLocal"
             Category = "Security"
             Ensure = "Present"
-            MembersToInclude = @("gsauser")
+            MembersToInclude = @("GSAUsersPrivateAccess")
             Credential = $DomainCreds
             DependsOn = "[xADDomain]FirstDS"
         }
@@ -152,7 +152,6 @@ configuration CreateADPDC
             Value = "Remote Desktop Users"
             ValueName = 'SeRemoteInteractiveLogonRight'
             Type = 'MultiString'
-            Additive = $true
         }
 
         xGPLink LinkRemoteDesktopUsersGPO

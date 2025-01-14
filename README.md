@@ -51,15 +51,17 @@ The easiest way to achieve that is following these steps:
  In order to save your changes you can use the editor commands. Follow the reference [here](https://learn.microsoft.com/en-us/azure/cloud-shell/using-cloud-shell-editor)
 * In your last step you will deploy the entire infrastructure in one single go by executing the following command from the cloud shell:
 `az deployment sub create -n 'gsaLabvnet' -l 'westeurope' --template-file 'main.bicep' --parameters 'lab.bicepparam'`
-* Once your deployment if finished you can connect to any of the VMs using Azure Bastion. To finish this deplyoment you must manually perform one last step: 
-  * login to the `smb` VM and execute the [CreateFileShare.ps1](./PoSH/CreateFileShare.ps1) file. You can simply copy the content of the file and paste it in PowerShell within the VM. It is important to execute this script in the context of the administrator account (the parameters provided in the param file).
+* Once your deployment if finished you can connect to any of the VMs using Azure Bastion. 
 
 After you perform the steps above your deployment is ready and you can continue to fine tune.
+
+> Note: Because the default configuration of Azure VMs is to only allow remote log on via Remote Desktop Services to the Administrators group, you will need to tweak the security policy. You must add the Remote Desktop Users security group to the local security policy - 
 
 # TODOs
 - [X] Remove the public IPs and validate deplyoment
 - [X] Optimize NSGs - actually removed all NSGs as we do not need them. All comms are within the same virtual network
-- [X] Try to run the group and user creation and folder share [script](./PoSH/CreateFileShare.ps1) as part of the deployment. For now user must manually execute it on the smb VM after deployment is ready.
+- [X] Try to run the group and user creation and folder share [script](./PoSH/CreateFileShare.ps1) as part of the deployment. For now user must manually execute it on the smb VM after deployment is ready. 
+ - https://github.com/Dayzure/entra-gsa-labs/issues/2
 - [X] Add another client that will be Hybrid Joined 
- - https://github.com/Dayzure/iga-demos/issues/1
+ - https://github.com/Dayzure/entra-gsa-labs/issues/1
  - [ ] work out automation to simulate the client being in "local" network and sometimes being "on internet"
