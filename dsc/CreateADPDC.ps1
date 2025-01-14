@@ -137,5 +137,55 @@ configuration CreateADPDC
             DependsOn = "[xADDomain]FirstDS"
         }
 
+        xGPO EnableRemoteDesktop
+        {
+            Ensure = 'Present'
+            Name = 'Enable Remote Desktop'
+            Comment = 'Enables Remote Desktop connections'
+            Domain = $DomainName
+            DependsOn = '[xADDomain]FirstDS'
+        }
+
+        xGPRegistryValue EnableRemoteDesktopConnections
+        {
+            Name = 'Enable Remote Desktop'
+            Key = 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services'
+            ValueName = 'fDenyTSConnections'
+            Value = 0
+            Type = 'DWord'
+            Domain = $DomainName
+            DependsOn = '[xGPO]EnableRemoteDesktop'
+        }
+
+        xGPRegistryValue RemoteDesktopUserAuthentication
+        {
+            Name = 'Enable Remote Desktop'
+            Key = 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services'
+            ValueName = 'UserAuthentication'
+            Value = 0
+            Type = 'DWord'
+            Domain = $DomainName
+            DependsOn = '[xGPO]EnableRemoteDesktop'
+        }
+
+        xGPLink LinkRemoteDesktopGPO
+        {
+            Ensure = 'Present'
+            Name = 'Enable Remote Desktop'
+            Target = "dc=$($DomainName.Replace('.', ',dc='))"
+            LinkEnabled = 'Yes'
+            Domain = $DomainName
+            DependsOn = '[xGPO]EnableRemoteDesktop'
+        }
+
+        Script UpdateGroupPolicy
+        {
+            SetScript = {
+                gpupdate /force
+            }
+            GetScript = { @{} }
+            TestScript = { $false }
+            DependsOn = '[xGPLink]LinkRemoteDesktopGPO'
+        }        
     }
 } 
