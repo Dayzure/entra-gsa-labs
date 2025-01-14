@@ -12,8 +12,9 @@ configuration CreateADPDC
         [Int]$RetryIntervalSec = 30
     ) 
     
-    Import-DscResource -ModuleName xActiveDirectory, xStorage, xNetworking, PSDesiredStateConfiguration, xPendingReboot
+    Import-DscResource -ModuleName xActiveDirectory, xStorage, xNetworking, PSDesiredStateConfiguration, xPendingReboot, xGroupPolicy
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
+    [System.Management.Automation.PSCredential ]$UserCreds = New-Object System.Management.Automation.PSCredential ("gsauser", $Admincreds.Password)
     $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
     $InterfaceAlias = $($Interface.Name)
 
@@ -104,6 +105,78 @@ configuration CreateADPDC
             SysvolPath                    = "F:\SYSVOL"
             DependsOn                     = @("[xDisk]ADDataDisk", "[WindowsFeature]ADDSInstall")
         } 
+
+        xADUser GSAUser {
+            DomainName = $DomainName
+            UserName = "gsauser"
+            Ensure = "Present"
+            Password = $UserCreds
+            DomainAdministratorCredential = $DomainCreds
+        }
+
+        xADGroup GSAUsersPrivateAccess {
+            GroupName = "GSAUsersPrivateAccess"
+            GroupScope = "Universal"
+            Category = "Security"
+            Ensure = "Present"
+            MembershipAttribute = "SamAccountName"
+            MembersToInclude = @("gsauser")
+            DependsOn = "[xADDomain]FirstDS"
+        }
+
+        xADGroup RemoteDesktopUsers {
+            GroupName = "Remote Desktop Users"
+            Ensure = "Present"
+            MembersToInclude = @("gsauser")
+            Credential = $DomainCreds
+            DependsOn = "[xADDomain]FirstDS"
+        }
+
+        xGroupPolicy EnableRemoteDesktop
+        {
+            Name = 'Enable Remote Desktop'
+            Ensure = 'Present'
+            DependsOn = '[xADDomain]FirstDS'
+            Credential = $DomainCreds
+            Key = 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services'
+            ValueName = 'fDenyTSConnections'
+            ValueData = 0
+            ValueType = 'Dword'
+        }
+
+        xGroupPolicy RemoteDesktopUserAuthPolicy
+        {
+            Name = 'Remote Desktop User Authentication'
+            Ensure = 'Present'
+            DependsOn = '[xADDomain]FirstDS'
+            Credential = $DomainCreds
+            Key = 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services'
+            ValueName = 'UserAuthentication'
+            ValueData = 0
+            ValueType = 'Dword'
+        }
+
+        xGroupPolicy RemoteDesktopUsersPolicy
+        {
+            Name = 'Enable Remote Desktop Users'
+            Ensure = 'Present'
+            DependsOn = '[xADDomain]FirstDS'
+            Credential = $DomainCreds
+            Key = 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services'
+            ValueName = 'UserAuthentication'
+            ValueData = 1
+            ValueType = 'Dword'
+        }
+
+        Script UpdateGroupPolicy
+        {
+            SetScript = {
+                gpupdate /force
+            }
+            GetScript = { @{} }
+            TestScript = { $false }
+            DependsOn = @('[xGroupPolicy]EnableRemoteDesktop', '[xGroupPolicy]RemoteDesktopUserAuthPolicy', '[xGroupPolicy]RemoteDesktopUsersPolicy')
+        }
 
     }
 } 

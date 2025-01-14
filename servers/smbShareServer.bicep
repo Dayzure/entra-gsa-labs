@@ -1,5 +1,6 @@
 param location string = resourceGroup().location
 param adDomainName string
+param adDomain string
 param subnetResourceId string
 param tags object
 param adminUsername string
@@ -104,6 +105,30 @@ resource maintenanceConfiguration 'Microsoft.Maintenance/maintenanceConfiguratio
       }
     }
   }
+}
+
+resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2024-07-01' = {
+  name: '${vmName}/CustomScriptExtension'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Compute'
+    type: 'CustomScriptExtension'
+    typeHandlerVersion: '1.10'
+    autoUpgradeMinorVersion: true
+    settings: {
+      fileUris: [
+        'https://raw.githubusercontent.com/Dayzure/entra-gsa-labs/refs/heads/main/PoSH/CreateFileShare.ps1'
+      ]
+      commandToExecute: 'powershell.exe -ExecutionPolicy Unrestricted -File .\\CreateFileShare.ps1 -DomainUsername "${adDomainName}\\${adminUsername}" -DomainPassword "${adminPassword}"'
+    }
+    protectedSettings: {
+      adminUsername: '${adDomainName}\\${adminUsername}'
+      adminPassword: adminPassword
+    }
+  }
+  dependsOn: [
+    smbVm
+  ]
 }
 
 @description('The name of the virtual machine.')
