@@ -158,7 +158,7 @@ configuration CreateADPDC
 
         UserRightsAssignment AllowLogOnThroughRemoteDesktopServices
         {
-            Policy = 'SeRemoteInteractiveLogonRight'
+            Policy = 'Allow_log_on_through_Remote_Desktop_Services'
             Identity = 'Remote Desktop Users'
             Ensure = 'Present'
             DependsOn = "[xADDomain]FirstDS"
