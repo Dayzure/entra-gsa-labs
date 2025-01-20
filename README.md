@@ -1,6 +1,9 @@
 # Microsoft Entra Global Secure Access Labs for infrastructure
 This repository aims to provide an infrastructure foundations for Microsoft Entra Global Secure Access labs.
 
+## Changelog
+- 2025-01-20 Adding VM Size SKU paramter to be flexible in chosing your deployment. Updates to the readme.
+
 # What will be deployed
 This pattern deploys the following infrastructure components:
 
@@ -67,7 +70,7 @@ The easiest way to achieve that is following these steps:
   ```
   az account set --subscription "<GUID or Name of the Azure subscription>"
   ```
-  * (optional, but recommended) re-register the `EncryptionAtHost` feature with Azure VM resoruce provider (`Microsoft.Compute`) by running the follwing command:
+  * (optional, but recommended) re-register the `EncryptionAtHost` feature with Azure VM resoucce provider (`Microsoft.Compute`) by running the follwing command:
   ```
   az feature register --namespace Microsoft.Compute --name EncryptionAtHost
   ```
@@ -93,6 +96,3 @@ After you perform the steps above your deployment is ready and you can continue 
  - [ ] work out automation to simulate the client being in "local" network and sometimes being "on internet". Ref.: https://github.com/Dayzure/entra-gsa-labs/issues/3
  - [ ] enforce accelerated networking on all the VMs and include notes about the VM Size requriements regarding that. Ref.: https://github.com/Dayzure/entra-gsa-labs/issues/7
  - [ ] add PowerShell script to be manually executed on the domain controller. The script shall include the policy to allow log-on via remote desktop services to the Remote Desktop Users group and the newly created security group.
-
-# Changelog
-- 2025-01-20 Adding VM Size SKU paramter to be flexible in chosing your deployment.
