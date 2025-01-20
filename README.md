@@ -31,7 +31,7 @@ When done, you must see the following components in your resource group:
 All the parameters are located in the [lab.bicepparam](./lab.bicepparam) file. You can use the default values for most of them.
 
 * **tags** The Azure tags to applied to the resource group and the resources created.
-* **vmSize** The Azure VM Size SKU that will be used to deploy all the VMs. The default value is `Standard_D4s_v3`. You may need to check for availability in your chosen region. Please pay attention that we use Standard SSD LRS disks on the VM, so chose a VM size that supports Standard SSD disks.
+* **vmSize** The Azure VM Size SKU that will be used to deploy all the VMs. The default value is [Standard_D4s_v3](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/dsv3-series). You may need to check for availability in your chosen region. Please pay attention that we use Standard SSD LRS disks on the VM, so chose a [VM size](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview) that supports Standard SSD disks. You must also pay attention to the requirements for accelerated networking. Some newer VM generations **require** accelerated networking. These will not work with the current scripts, as we do not activate the accelerated networking by default.
 * **resourceLocation**  Azure region where all the resources shall be created. Pay attention to [location availability of Azure Bastion](https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/table) and chose location where you can create Azure Bastion. Otherwise your deployment will fail.
 * **resourceGroupName** name of the resource group to be created. Note that all resources will be created in this resource group
 * **adminUsername** the login name for the local administrator account. It will be same across all virtual machines. Note that this will also be your Enterprise Administrator account for the AD DS. This login name can only be used to login to the VMs over Azure Bastion resp. RDP. 
@@ -41,6 +41,8 @@ All the parameters are located in the [lab.bicepparam](./lab.bicepparam) file. Y
 # How to deploy
 To deploy your infrastructure you must clone the entire repository and execute az cli deployment command pointint to the [main.bicep](./main.bicep) file and [lab.bicepparam](./lab.bicepparam) file
 The easiest way to achieve that is following these steps:
+> Note: Your subscritpion might be missing some Azure VM resource provider feature (`EncryptionAtHost`). To make sure the deployment will succeeed, pelase first register the feature with your subscription by executing the following command: `az feature register --namespace Microsoft.Compute --name EncryptionAtHost`
+
 * Open you favorite browser window, navigate to (https://portal.azure.com) and sign-in with your Azure account where you want to create the lab environment
 * Open the cloud shell from top right button. For more information Azure Cloud Shell follow [this link](https://learn.microsoft.com/en-us/azure/cloud-shell/overview). Please choose `Azure Bash` mode
 * clone this repository by executing the following command in the cloud shell:
@@ -65,6 +67,10 @@ The easiest way to achieve that is following these steps:
   ```
   az account set --subscription "<GUID or Name of the Azure subscription>"
   ```
+  * (optional, but recommended) re-register the `EncryptionAtHost` feature with Azure VM resoruce provider (`Microsoft.Compute`) by running the follwing command:
+  ```
+  az feature register --namespace Microsoft.Compute --name EncryptionAtHost
+  ```
   * Finally run the deployment command
   ```
    az deployment sub create -n 'gsaLabvnet' -l 'westeurope' --template-file 'main.bicep' --parameters 'lab.bicepparam'
@@ -84,7 +90,9 @@ After you perform the steps above your deployment is ready and you can continue 
  - https://github.com/Dayzure/entra-gsa-labs/issues/2
 - [X] Add another client that will be Hybrid Joined 
  - https://github.com/Dayzure/entra-gsa-labs/issues/1
- - [ ] work out automation to simulate the client being in "local" network and sometimes being "on internet"
+ - [ ] work out automation to simulate the client being in "local" network and sometimes being "on internet". Ref.: https://github.com/Dayzure/entra-gsa-labs/issues/3
+ - [ ] enforce accelerated networking on all the VMs and include notes about the VM Size requriements regarding that. Ref.: https://github.com/Dayzure/entra-gsa-labs/issues/7
+ - [ ] add PowerShell script to be manually executed on the domain controller. The script shall include the policy to allow log-on via remote desktop services to the Remote Desktop Users group and the newly created security group.
 
 # Changelog
 - 2025-01-20 Adding VM Size SKU paramter to be flexible in chosing your deployment.
