@@ -6,6 +6,7 @@ param adminUsername string
 @secure()
 param adminPassword string
 param namePrefix string = 'gsalab'
+param vmSize string
 
 
 var vmName = '${namePrefix}-adds'
@@ -15,7 +16,7 @@ module vm 'br/public:avm/res/compute/virtual-machine:0.11.0' = {
   params: {
     name: vmName
     location: location
-    vmSize: 'Standard_D4s_v3'
+    vmSize: vmSize
     imageReference: {
       publisher: 'MicrosoftWindowsServer'
       offer: 'WindowsServer'
@@ -128,25 +129,6 @@ resource maintenanceConfiguration 'Microsoft.Maintenance/maintenanceConfiguratio
     }
   }
 }
-
-// module storage 'br/public:avm/res/storage/storage-account:0.5.0' = {
-//   name: '${vmName}-storage'
-//   params: {
-//     name: uniqueString('${vmName}storage', resourceGroup().id, subscription().subscriptionId)
-//     location: location
-//     kind: 'StorageV2'
-//     skuName: 'Standard_LRS'
-//     allowSharedKeyAccess: true
-//     tags: tags
-//     roleAssignments: [
-//       {
-//         principalType: 'ServicePrincipal'
-//         principalId: vm.outputs.systemAssignedMIPrincipalId
-//         roleDefinitionIdOrName: 'Storage Blob Data Contributor'
-//       }
-//     ]
-//   }
-// }
 
 @description('The name of the virtual machine.')
 output vmName string = vm.outputs.name

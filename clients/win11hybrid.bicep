@@ -1,6 +1,7 @@
 param location string = resourceGroup().location
 param subnetResourceId string
 param tags object
+param vmSize string
 param adminUsername string
 @secure()
 param adminPassword string
@@ -15,7 +16,7 @@ module vmClient 'br/public:avm/res/compute/virtual-machine:0.11.0' = {
     name: vmName
     location: location
     tags: tags
-    vmSize: 'Standard_D4s_v3'
+    vmSize: vmSize
     imageReference: {
       publisher: 'MicrosoftWindowsDesktop'
       offer: 'Windows-11'

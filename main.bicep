@@ -19,6 +19,8 @@ param resourceLocation string = 'westeurope'
 @description('Azure resource group name to be created. All the resources will be placed in this resource group')
 param resourceGroupName string = 'gsa-lab-rg'
 
+@description('The virtual machine SKU to use. Please make sure the chosen SKU is available in your region. Also, be aware that we attache StandardSSD_LRS disks to the VM - so choose a SKU that supports them.')
+param vmSize string
 
 // ------------------ Resource Groups -----------------
 
@@ -50,6 +52,7 @@ module vmadds 'servers/adds.bicep' = {
   name: 'ADDS'
   scope: resourceGroup(resourceGroupName)
   params: {
+    vmSize: vmSize
     adminUsername: adminUsername
     adDomainName: adDomainName
     subnetResourceId: networking.outputs.addsSubnetResourceId
@@ -73,9 +76,9 @@ module vmSmbShareServer 'servers/smbShareServer.bicep' = {
   name: 'SMBShareServer'
   scope: resourceGroup(resourceGroupName)
   params: {
+    vmSize: vmSize
     adminUsername: adminUsername
     adDomainName: adDomainName
-    //YsubnetResourceId: '/subscriptions/08edba72-f736-4467-9d35-7032f38ebce6/resourceGroups/gsaLabs/providers/Microsoft.Network/virtualNetworks/gsaLabs-vnetServers/subnets/server-vms'
     subnetResourceId: networking.outputs.serversSubnetResourceId
     adminPassword: adminPassword
     tags: tags
@@ -89,6 +92,7 @@ module vmClient 'clients/win11.bicep' = {
   name: 'Win11ClientVM'
   scope: resourceGroup(resourceGroupName)
   params: {
+    vmSize: vmSize
     adminUsername: adminUsername
     adminPassword: adminPassword
     subnetResourceId: networking.outputs.subnetClientsResourceId
@@ -101,6 +105,7 @@ module vmHybridClient 'clients/win11hybrid.bicep' = {
   name: 'Win11HybridClientVM'
   scope: resourceGroup(resourceGroupName)
   params: {
+    vmSize: vmSize
     adminUsername: adminUsername
     adminPassword: adminPassword
     subnetResourceId: networking.outputs.subnetHybridClientsResourceId

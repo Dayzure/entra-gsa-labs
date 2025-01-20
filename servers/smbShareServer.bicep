@@ -2,6 +2,7 @@ param location string = resourceGroup().location
 param adDomainName string
 param subnetResourceId string
 param tags object
+param vmSize string
 param adminUsername string
 @secure()
 param adminPassword string
@@ -14,7 +15,7 @@ module smbVm 'br/public:avm/res/compute/virtual-machine:0.11.0' = {
   params: {
     name: vmName
     location: location
-    vmSize: 'Standard_B2s'
+    vmSize: vmSize
     imageReference: {
       publisher: 'MicrosoftWindowsServer'
       offer: 'WindowsServer'

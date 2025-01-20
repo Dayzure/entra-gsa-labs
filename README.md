@@ -31,6 +31,7 @@ When done, you must see the following components in your resource group:
 All the parameters are located in the [lab.bicepparam](./lab.bicepparam) file. You can use the default values for most of them.
 
 * **tags** The Azure tags to applied to the resource group and the resources created.
+* **vmSize** The Azure VM Size SKU that will be used to deploy all the VMs. The default value is `Standard_D4s_v3`. You may need to check for availability in your chosen region. Please pay attention that we use Standard SSD LRS disks on the VM, so chose a VM size that supports Standard SSD disks.
 * **resourceLocation**  Azure region where all the resources shall be created. Pay attention to [location availability of Azure Bastion](https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/table) and chose location where you can create Azure Bastion. Otherwise your deployment will fail.
 * **resourceGroupName** name of the resource group to be created. Note that all resources will be created in this resource group
 * **adminUsername** the login name for the local administrator account. It will be same across all virtual machines. Note that this will also be your Enterprise Administrator account for the AD DS. This login name can only be used to login to the VMs over Azure Bastion resp. RDP. 
@@ -50,7 +51,7 @@ The easiest way to achieve that is following these steps:
    ```
    cd entra-gsa-labs
    ```
-* The only thing left is to update the password in the parameters file. You can do this using the built-in code editor. To start the local editor type the following command in the Azure Cloud Shell:
+* The only thing left is to update the password, and optionally the VM size SKU, in the parameters file. You can do this using the built-in code editor. To start the local editor type the following command in the Azure Cloud Shell:
   ```
   code lab.bicepparam
   ```
@@ -84,3 +85,6 @@ After you perform the steps above your deployment is ready and you can continue 
 - [X] Add another client that will be Hybrid Joined 
  - https://github.com/Dayzure/entra-gsa-labs/issues/1
  - [ ] work out automation to simulate the client being in "local" network and sometimes being "on internet"
+
+# Changelog
+- 2025-01-20 Adding VM Size SKU paramter to be flexible in chosing your deployment.
