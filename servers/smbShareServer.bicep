@@ -70,6 +70,13 @@ module smbVm 'br/public:avm/res/compute/virtual-machine:0.11.0' = {
       }
     }
     extensionDomainJoinPassword: adminPassword
+    extensionDSCConfig: {
+      enabled: true
+      settings: {
+        ModulesUrl: 'https://github.com/Dayzure/entra-gsa-labs/raw/refs/heads/main/dsc/WindowsWebServer.zip'
+        ConfigurationFunction: 'WindowsWebserver.ps1\\WindowsWebServer'
+      }
+    }
     tags: tags
   }
 }

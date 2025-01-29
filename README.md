@@ -14,7 +14,7 @@ This pattern deploys the following infrastructure components:
   * IP address space `10.100.0.0/24`
   * Azure Bastion to connect to the VMs (subnet `10.100.0.0/26`)
   * Subnet (`10.100.0.64/26`) for the AD DS. There we place one VM with Windows Server 2022. This VM is automatically promoted to AD DS primary domain controller. After the VM is promoted to AD DS, the **DNS** server for the VNet is set to its IP address - `10.100.0.68`
-  * Subnet (`10.100.0.128/26`) for secondary VM with Windows Server 2022. This VM will be automatically joined to the domain and will be used to simulate file share server.
+  * Subnet (`10.100.0.128/26`) for secondary VM with Windows Server 2022. This VM will be automatically joined to the domain and will be used to simulate file share server and IIS Web Server.
 * A Virtual Network for client VM which includes
   * IP address space `10.200.0.0/24`
   * Azure Bastion to connect to the client VM (subnet `10.200.0.0/26`). Because we want to test Entra Private access, we must avoid connecting the client VM directly to the Server VMs via Azure Virtual Network Peering. That is why we need a separate Azure Bastion deployment for this isolated network.
@@ -93,6 +93,9 @@ After you perform the steps above your deployment is ready and you can continue 
  - https://github.com/Dayzure/entra-gsa-labs/issues/2
 - [X] Add another client that will be Hybrid Joined 
  - https://github.com/Dayzure/entra-gsa-labs/issues/1
+ - [X] Install IIS Web service using DSC
+ - [ ] Deploy 3 web applications to the IIS as part of the deployment script. Use PowerShell extension to run a powershell that will download und unzip ASP.NET apps.
  - [ ] work out automation to simulate the client being in "local" network and sometimes being "on internet". Ref.: https://github.com/Dayzure/entra-gsa-labs/issues/3
  - [ ] enforce accelerated networking on all the VMs and include notes about the VM Size requriements regarding that. Ref.: https://github.com/Dayzure/entra-gsa-labs/issues/7
  - [ ] add PowerShell script to be manually executed on the domain controller. The script shall include the policy to allow log-on via remote desktop services to the Remote Desktop Users group and the newly created security group.
+ 
