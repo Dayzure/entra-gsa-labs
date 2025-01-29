@@ -73,7 +73,7 @@ module smbVm 'br/public:avm/res/compute/virtual-machine:0.11.0' = {
     extensionDSCConfig: {
       enabled: true
       settings: {
-        ModulesUrl: 'https://github.com/Dayzure/entra-gsa-labs/raw/refs/heads/dsc-iis/dsc/WindowsWebServer.zip'
+        ModulesUrl: 'https://github.com/Dayzure/entra-gsa-labs/raw/refs/heads/main/dsc/WindowsWebServer.zip'
         ConfigurationFunction: 'WindowsWebserver.ps1\\WindowsWebServer'
       }
     }
