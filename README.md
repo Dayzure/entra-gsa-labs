@@ -42,7 +42,7 @@ All the parameters are located in the [lab.bicepparam](./lab.bicepparam) file. Y
 * **adDomainName** This will be the name of your AD DS domain. 
 
 # How to deploy
-To deploy your infrastructure you must clone the entire repository and execute az cli deployment command pointint to the [main.bicep](./main.bicep) file and [lab.bicepparam](./lab.bicepparam) file
+To deploy your infrastructure you must clone the entire repository and execute az cli deployment command point it to the [main.bicep](./main.bicep) file and [lab.bicepparam](./lab.bicepparam) file
 The easiest way to achieve that is following these steps:
 > Note: Your subscritpion might be missing some Azure VM resource provider feature (`EncryptionAtHost`). To make sure the deployment will succeeed, pelase first register the feature with your subscription by executing the following command: `az feature register --namespace Microsoft.Compute --name EncryptionAtHost`
 
