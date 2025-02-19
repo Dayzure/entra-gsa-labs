@@ -34,7 +34,7 @@ When done, you must see the following components in your resource group:
 All the parameters are located in the [lab.bicepparam](./lab.bicepparam) file. You can use the default values for most of them.
 
 * **tags** The Azure tags to applied to the resource group and the resources created.
-* **vmSize** The Azure VM Size SKU that will be used to deploy all the VMs. The default value is [Standard_D4s_v3](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/dsv3-series). You may need to check for availability in your chosen region. Please pay attention that we use Standard SSD LRS disks on the VM, so chose a [VM size](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview) that supports Standard SSD disks. You must also pay attention to the requirements for accelerated networking. Some newer VM generations **require** accelerated networking. These will not work with the current scripts, as we do not activate the accelerated networking by default.
+* **vmSize** The Azure VM Size SKU that will be used to deploy all the VMs. The default value is [Standard_D4ads_v5](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/dasv5-series?tabs=sizebasic). You may need to check for availability in your chosen region (refer to the [Azure Products by Region](https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/table) table). Please pay attention that we use Standard SSD LRS disks on the VM, so chose a [VM size](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview) that supports Standard SSD disks. You must also pay attention to the requirements for accelerated networking. Some newer VM generations **require** accelerated networking. These will not work with the current scripts, as we do not activate the accelerated networking by default.
 * **resourceLocation**  Azure region where all the resources shall be created. Pay attention to [location availability of Azure Bastion](https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/table) and chose location where you can create Azure Bastion. Otherwise your deployment will fail.
 * **resourceGroupName** name of the resource group to be created. Note that all resources will be created in this resource group
 * **adminUsername** the login name for the local administrator account. It will be same across all virtual machines. Note that this will also be your Enterprise Administrator account for the AD DS. This login name can only be used to login to the VMs over Azure Bastion resp. RDP. 
@@ -99,3 +99,11 @@ After you perform the steps above your deployment is ready and you can continue 
  - [ ] enforce accelerated networking on all the VMs and include notes about the VM Size requriements regarding that. Ref.: https://github.com/Dayzure/entra-gsa-labs/issues/7
  - [ ] add PowerShell script to be manually executed on the domain controller. The script shall include the policy to allow log-on via remote desktop services to the Remote Desktop Users group and the newly created security group.
  
+# Most common issues when running the script
+The most common issue when running the script is the regional constraints for VM Size SKU. The error message will look something like this (some texts omitted and line breaks added for clarity):
+```
+{"status":"Failed","error":{"code":"DeploymentFailed", ....
+   .... 
+   [{"code":"SkuNotAvailable","message":"The requested VM size for resource 'Following SKUs have failed for Capacity Restrictions: Standard_D4s_v3' is currently not available in location 'westeurope'. Please try another size or deploy to a different location or different zone. See https://aka.ms/azureskunotavailable for details."}]}]}]}]}}
+```
+If you encounter such error message, please adjust the region and/or the VM Size SKU (`vmSize` parameter) in the [lab.bicepparam](https://github.com/Dayzure/entra-gsa-labs/blob/a8e1457c76b7c682b5c46e9c778fadfb9d7b9c5a/lab.bicepparam#L10) file.
