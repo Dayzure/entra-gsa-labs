@@ -106,4 +106,4 @@ The most common issue when running the script is the regional constraints for VM
    .... 
    [{"code":"SkuNotAvailable","message":"The requested VM size for resource 'Following SKUs have failed for Capacity Restrictions: Standard_D4s_v3' is currently not available in location 'westeurope'. Please try another size or deploy to a different location or different zone. See https://aka.ms/azureskunotavailable for details."}]}]}]}]}}
 ```
-If you encounter such error message, please adjust the region and/or the VM Size SKU (`vmSize` parameter) in the [lab.bicepparam](https://github.com/Dayzure/entra-gsa-labs/blob/a8e1457c76b7c682b5c46e9c778fadfb9d7b9c5a/lab.bicepparam#L10) file.
+If you encounter such error message, please adjust the region and/or the VM Size SKU (`vmSize` parameter) in the [lab.bicepparam](https://github.com/Dayzure/entra-gsa-labs/blob/514370e9445e58f47f8b2ba9a1e90bbb002f4b7c/lab.bicepparam#L10) file.
