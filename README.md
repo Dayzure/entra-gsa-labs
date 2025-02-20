@@ -73,6 +73,7 @@ The easiest way to achieve that is following these steps:
     ```
   * Finally run the deployment command
     ```
+    cd entra-gsa-labs
     az deployment sub create -n 'gsaLabvnet' -l 'westeurope' --template-file 'main.bicep' --parameters 'lab.bicepparam'
     ```
 
