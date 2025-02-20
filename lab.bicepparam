@@ -10,5 +10,5 @@ param resourceGroupName = 'gsa-lab-rg'
 param vmSize = 'Standard_D4ads_v5'
 param adminUsername = 'gsadm' 
 @description('Use a complex password that will meet Azure VM password complexity requriements.')
-param adminPassword = '********'
+param adminPassword = 'PWD_PLACEHOLDER'
 param adDomainName = 'M365x82796325.onmicrosoft.com'
