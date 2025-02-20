@@ -52,32 +52,29 @@ The easiest way to achieve that is following these steps:
    ```
    git clone https://github.com/Dayzure/entra-gsa-labs.git
    ```
-* once the repository is cloned you can change to its locally create folder:
-   ```
-   cd entra-gsa-labs
-   ```
-* The only thing left is to update the password, and optionally the VM size SKU, in the parameters file. You can do this using the built-in code editor. To start the local editor type the following command in the Azure Cloud Shell:
+* The only thing left is to update the password, and optionally the VM size SKU, in the parameters file. To update the password just run the following command in the cloud shell:
   ```
-  code lab.bicepparam
+  sed -i 's/PWD_PLACEHOLDER/Your_SUPER_Strong_Password/g' entra-gsa-labs/lab.bicepparam
   ```
-  To save your changes you can use the editor commands. Follow the reference [here](https://learn.microsoft.com/en-us/azure/cloud-shell/using-cloud-shell-editor)
+  > The command `sed` will replace the placeholder (`PWD_PLACEHOLDER`) from the parameters file with your desired password. In this example - with `Your_SUPER_Strong_Password`.
+
 * In your last step you will deploy the entire infrastructure in one single go by executing the following command from the cloud shell:
   * before running the deployment make sure you are targeting the subscritpion you want to deploy to. Check the current context using the command
-  ```
-  az account show
-  ```
+    ```
+    az account show
+    ```
   * should you have access to multiple subscriptions and the above command shows you different subscription, change the context using the command:
-  ```
-  az account set --subscription "<GUID or Name of the Azure subscription>"
-  ```
+    ```
+    az account set --subscription "<GUID or Name of the Azure subscription>"
+    ```
   * (optional, but recommended) re-register the `EncryptionAtHost` feature with Azure VM resoucce provider (`Microsoft.Compute`) by running the follwing command:
-  ```
-  az feature register --namespace Microsoft.Compute --name EncryptionAtHost
-  ```
+    ```
+    az feature register --namespace Microsoft.Compute --name EncryptionAtHost
+    ```
   * Finally run the deployment command
-  ```
-   az deployment sub create -n 'gsaLabvnet' -l 'westeurope' --template-file 'main.bicep' --parameters 'lab.bicepparam'
-  ```
+    ```
+    az deployment sub create -n 'gsaLabvnet' -l 'westeurope' --template-file 'main.bicep' --parameters 'lab.bicepparam'
+    ```
 
 Now sit back and relax untill deplyoment completes.
 Once your deployment if finished you can connect to any of the VMs using Azure Bastion. 
@@ -106,4 +103,4 @@ The most common issue when running the script is the regional constraints for VM
    .... 
    [{"code":"SkuNotAvailable","message":"The requested VM size for resource 'Following SKUs have failed for Capacity Restrictions: Standard_D4s_v3' is currently not available in location 'westeurope'. Please try another size or deploy to a different location or different zone. See https://aka.ms/azureskunotavailable for details."}]}]}]}]}}
 ```
-If you encounter such error message, please adjust the region and/or the VM Size SKU (`vmSize` parameter) in the [lab.bicepparam](https://github.com/Dayzure/entra-gsa-labs/blob/514370e9445e58f47f8b2ba9a1e90bbb002f4b7c/lab.bicepparam#L10) file.
+If you encounter such error message, please adjust the region and/or the VM Size SKU (`vmSize` parameter) in the [lab.bicepparam](https://github.com/Dayzure/entra-gsa-labs/blob/189ee41c0208e8cf82a431f295946b3e145a115e/lab.bicepparam#L10) file.
